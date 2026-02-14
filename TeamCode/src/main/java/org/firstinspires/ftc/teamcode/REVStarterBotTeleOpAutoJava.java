@@ -106,10 +106,10 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         state = AUTO_RED_GOAL;
       } else if (state.equals(AUTO_RED_GOAL)) {
         state = AUTO_RED_BACK;
-      } else if (state.equals(AUTO_FORWARD)) {
-        state = TELEOP;
-      } else if (state.equals(AUTO_RED_BACK)) {
+      }else if (state.equals(AUTO_RED_BACK)) {
         state = AUTO_FORWARD;
+      }else if (state.equals(AUTO_FORWARD)) {
+        state = TELEOP;
       } else {
         telemetry.addData("WARNING", "Unknown Operation State Reached - Restart Program");
       }
