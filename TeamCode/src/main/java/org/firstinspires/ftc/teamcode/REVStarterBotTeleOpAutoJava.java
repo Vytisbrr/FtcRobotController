@@ -414,7 +414,35 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       frontLeft.setPower(0);
       backRight.setPower(0);
       frontRight.setPower(0);
+      
+      // Strafe movements
+      strafeLeft(0.5);
+      strafeRight(0.5);
     }
+  }
+
+  private void strafeLeft(double seconds) {
+    frontLeft.setPower(-0.75);
+    backLeft.setPower(0.75);
+    frontRight.setPower(0.75);
+    backRight.setPower(-0.75);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+
+  private void strafeRight(double seconds) {
+    frontLeft.setPower(0.75);
+    backLeft.setPower(-0.75);
+    frontRight.setPower(-0.75);
+    backRight.setPower(0.75);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
   }
 
   private void doAutoRedBack() {
