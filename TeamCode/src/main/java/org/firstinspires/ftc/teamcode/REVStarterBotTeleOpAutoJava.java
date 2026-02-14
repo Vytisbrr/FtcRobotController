@@ -18,7 +18,6 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private DcMotor backRight;
   private DcMotor intake;
   private Servo hood;
-  double servoPosition;
   private int detectionStableCount = 0;
   private boolean lastDetectionState = false;
   private double currentHoodSetpoint = 0;
@@ -69,6 +68,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     frontLeft.setDirection(DcMotor.Direction.REVERSE);
     backLeft.setDirection(DcMotor.Direction.REVERSE);
     intake.setDirection(DcMotor.Direction.REVERSE);
+    hood.setPosition(hoodOffset);
 
     //On initilization the Driver Station will prompt for which OpMode should be run - Auto Blue, Auto Red, or TeleOp
     while (opModeInInit()) {
@@ -278,11 +278,6 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       targetID = 20;
     } else if (gamepad1.dpad_right) {
       targetID = 24;
-    }
-    if (gamepad1.dpad_up) {
-
-    } else if (gamepad1.dpad_down) {
-      hood.setPosition(0.0);
     }
   }
 
