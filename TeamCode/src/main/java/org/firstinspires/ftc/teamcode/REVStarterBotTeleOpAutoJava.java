@@ -363,7 +363,72 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       ((DcMotorEx) flywheel).setVelocity(0);
     }
   }
-
+  private void strafeRight(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(speed);
+    backRight.setPower(speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void strafeLeft(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(-speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void turnRight(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(speed);
+    backRight.setPower(speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void turnLeft(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(-speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void moveForward(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(speed);
+    backRight.setPower(-speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void moveBack(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
   /**
    * Red Alliance Autonomous
    * The robot will fire the pre-loaded balls until the 10 second timer ends.
