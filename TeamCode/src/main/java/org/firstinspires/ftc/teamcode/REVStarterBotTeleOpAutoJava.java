@@ -292,10 +292,9 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       telemetry.update();
       // Fire balls
       autoLaunchTimer.reset();
-      while (opModeIsActive() && autoLaunchTimer.milliseconds() < 10000) {
-
-        telemetry.addData("Launcher Countdown", autoLaunchTimer.seconds());
-        telemetry.update();
+      while (opModeIsActive()) {
+        setFlywheelVelocity();
+        hood.setPosition(hoodOffset + getHoodSetpoint());
       }
       ((DcMotorEx) flywheel).setVelocity(0);
       coreHex.setPower(0.0);
@@ -309,6 +308,11 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       backRight.setPower(-0.5);
       frontRight.setPower(-0.5);
       sleep(500);
+      backLeft.setPower(0.0);
+      frontLeft.setPower(0.0);
+      backRight.setPower(0.0);
+      frontRight.setPower(0.0);
+      sleep(100);
       backLeft.setPower(0.75);
       frontLeft.setPower(0.75);
       backRight.setPower(0.75);
@@ -372,10 +376,9 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       telemetry.update();
       // Fire balls
       autoLaunchTimer.reset();
-      while (opModeIsActive() && autoLaunchTimer.milliseconds() < 10000) {
-
-        telemetry.addData("Launcher Countdown", autoLaunchTimer.seconds());
-        telemetry.update();
+      while (opModeIsActive()) {
+        setFlywheelVelocity();
+        hood.setPosition(hoodOffset + getHoodSetpoint());
       }
       coreHex.setPower(0);
       backLeft.setPower(-1);
