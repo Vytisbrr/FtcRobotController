@@ -19,6 +19,9 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private DcMotor intake;
   private Servo hood;
   double servoPosition;
+  private int detectionStableCount = 0;
+  private boolean lastDetectionState = false;
+  private double currentHoodSetpoint = 0;
   private static final int bankVelocity = 1400;
   private static final int farVelocity = 1700;
   private static final int maxVelocity = 1800;
@@ -149,13 +152,26 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
 
   private double getHoodSetpoint(){
     org.firstinspires.ftc.vision.apriltag.AprilTagDetection detection = aprilTagWebcam.getTagBySpecificId(targetID);
-    double currentRange = -1;
-    if (detection != null && detection.ftcPose != null) {
-      currentRange = detection.ftcPose.range;
-      telemetry.addData("dist", currentRange);
-      return currentRange * 0.001;
+    boolean tagDetected = (detection != null && detection.ftcPose != null);
+    
+    // Only update if detection state is stable for 3 frames
+    if (tagDetected == lastDetectionState) {
+      detectionStableCount++;
+    } else {
+      detectionStableCount = 0;
+      lastDetectionState = tagDetected;
     }
-    return 0;
+    
+    if (detectionStableCount >= 3) {
+      if (tagDetected) {
+        currentHoodSetpoint = detection.ftcPose.range * 0.001;
+        telemetry.addData("dist", detection.ftcPose.range);
+      } else {
+        currentHoodSetpoint = 0;
+      }
+    }
+    
+    return currentHoodSetpoint;
   }
 
   private void setFlywheelVelocity() {
