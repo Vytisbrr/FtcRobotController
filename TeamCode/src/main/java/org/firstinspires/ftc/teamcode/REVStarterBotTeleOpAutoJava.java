@@ -42,10 +42,10 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
           {48.0, 1430},
           {72.0, 1530},
           {96.0, 1600},
-          {120.0, 1670},
-          {150.0, 1750},
-          {180.0, 1830},
-          {210.0, 1900}
+          {120.0, 1640},
+          {150.0, 1690},
+          {180.0, 1760},
+          {210.0, 1840}
   };
 
   @Override
@@ -66,6 +66,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     frontLeft.setDirection(DcMotor.Direction.REVERSE);
     backLeft.setDirection(DcMotor.Direction.REVERSE);
     intake.setDirection(DcMotor.Direction.REVERSE);
+    hood.setPosition(hoodOffset);
 
     //On initilization the Driver Station will prompt for which OpMode should be run - Auto Blue, Auto Red, or TeleOp
     while (opModeInInit()) {
@@ -133,6 +134,11 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         manualCoreHexControl();
         hood.setPosition(hoodOffset + getHoodSetpoint());
         aprilTagWebcam.update();
+        if (targetID==20){
+          telemetry.addData("Targeting Blue, ID:", targetID);
+        } else if (targetID==24) {
+          telemetry.addData("Targeting Red, ID:", targetID);
+        }
         telemetry.addData("Hood angle", hood.getPosition());
         telemetry.addData("Flywheel Target", ((DcMotorEx) flywheel).getVelocity());
         telemetry.update();
@@ -290,37 +296,21 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
-      // Fire balls
       setFlywheelVelocity();
       hood.setPosition(hoodOffset);
+      sleep(500);
       intake.setPower(-1);
       coreHex.setPower(1);
       sleep(3000);
-      coreHex.setPower(0.0);
-      backLeft.setPower(1.0);
-      frontLeft.setPower(-1.0);
-      backRight.setPower(-1.0);
-      frontRight.setPower(1.0);
-      sleep(500);
-      backLeft.setPower(0.5);
-      frontLeft.setPower(0.5);
-      backRight.setPower(-0.5);
-      frontRight.setPower(-0.5);
-      sleep(500);
-      backLeft.setPower(0.0);
-      frontLeft.setPower(0.0);
-      backRight.setPower(0.0);
-      frontRight.setPower(0.0);
-      sleep(100);
-      backLeft.setPower(0.75);
-      frontLeft.setPower(0.75);
-      backRight.setPower(0.75);
-      frontRight.setPower(0.75);
-      sleep(500);
-      backLeft.setPower(0.0);
-      frontLeft.setPower(0.0);
-      backRight.setPower(0.0);
-      frontRight.setPower(0.0);
+      intake.setPower(0);
+      coreHex.setPower(0);
+      moveBack(0.5, 1);
+      turnLeft(0.45, 0.5);
+      strafeLeft(1.2, 0.5);
+      intake.setPower(-1);
+      moveForward(1, 1);
+      moveBack(1, 1);
+      strafeRight(1.2, 0.5);
     }
   }
 
@@ -363,7 +353,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       ((DcMotorEx) flywheel).setVelocity(0);
     }
   }
-  private void strafeRight(double seconds, double speed) {
+  private void strafeLeft(double seconds, double speed) {
     frontLeft.setPower(speed);
     backLeft.setPower(speed);
     frontRight.setPower(speed);
@@ -374,7 +364,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     frontRight.setPower(0);
     backRight.setPower(0);
   }
-  private void strafeLeft(double seconds, double speed) {
+  private void strafeRight(double seconds, double speed) {
     frontLeft.setPower(-speed);
     backLeft.setPower(-speed);
     frontRight.setPower(-speed);
@@ -440,38 +430,37 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       telemetry.update();
       setFlywheelVelocity();
       hood.setPosition(hoodOffset);
+      sleep(500);
       intake.setPower(-1);
       coreHex.setPower(1);
+      sleep(1000);
+      intake.setPower(0);
+      coreHex.setPower(0);
+      moveBack(0.3, 0.5);
+      coreHex.setPower(1);
+      intake.setPower(-1);
+      sleep(2000);
+      moveBack(0.5, 1);
+      turnRight(0.45, 0.5);
+      strafeRight(1.13, 0.5);
+      intake.setPower(-1);
+      moveForward(1, 1);
+      moveBack(1, 0.5);
+      strafeLeft(1.13, 0.5);
+      turnLeft(0.45, 0.5);
+      sleep(200);
+      targetID=24;
+      hood.setPosition(hoodOffset+getHoodSetpoint());
+      setFlywheelVelocity();
+      sleep(2000);
+      coreHex.setPower(1);
+      intake.setPower(-1);
       sleep(3000);
       coreHex.setPower(0);
-      backLeft.setPower(1);
-      frontLeft.setPower(-1);
-      backRight.setPower(-1);
-      frontRight.setPower(1);
-      sleep(500);
-      frontLeft.setPower(0.5);
-      backLeft.setPower(0.5);
-      frontRight.setPower(-0.5);
-      backRight.setPower(-0.5);
-      sleep(500);
-      backLeft.setPower(0);
-      frontLeft.setPower(0);
-      backRight.setPower(0);
-      frontRight.setPower(0);
-      sleep(100);
-      frontLeft.setPower(0.75);
-      backLeft.setPower(0.75);
-      frontRight.setPower(0.75);
-      backRight.setPower(0.75);
-      sleep(500);
-      backLeft.setPower(0);
-      frontLeft.setPower(0);
-      backRight.setPower(0);
-      frontRight.setPower(0);
+      intake.setPower(0);
     }
   }
-
-  private void doAutoRedBack() {
+      private void doAutoRedBack() {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
