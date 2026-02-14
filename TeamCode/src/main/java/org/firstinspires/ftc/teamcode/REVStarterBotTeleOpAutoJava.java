@@ -34,11 +34,11 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private static final String AUTO_FORWARD = "AUTO FORWARD";
   private String operationSelected = TELEOP;
   private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
-
   private double hoodOffset = 0.72;
   private ElapsedTime autoLaunchTimer = new ElapsedTime();
   private ElapsedTime autoDriveTimer = new ElapsedTime();
   AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
+  double targetPosition = hoodOffset + getHoodSetpoint();
   private double[][] shooterLUT = {
           {24.0, 1330},
           {48.0, 1430},
@@ -134,8 +134,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         splitStickArcadeDrive();
         setFlywheelVelocity(); // This now runs the flywheel constantly
         manualCoreHexControl();
-        double targetPosition = hoodOffset + getHoodSetpoint();
-        hood.setPosition(Math.min(targetPosition, 0.85));
+        hood.setPosition(Math.min(targetPosition, 0.95));
         aprilTagWebcam.update();
         telemetry.addData("Hood angle", hood.getPosition());
         telemetry.addData("Flywheel Target", ((DcMotorEx) flywheel).getVelocity());
@@ -149,26 +148,13 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
 
   private double getHoodSetpoint(){
     org.firstinspires.ftc.vision.apriltag.AprilTagDetection detection = aprilTagWebcam.getTagBySpecificId(targetID);
-    boolean tagDetected = (detection != null && detection.ftcPose != null);
-    
-    // Only update if detection state is stable for 3 frames
-    if (tagDetected == lastDetectionState) {
-      detectionStableCount++;
-    } else {
-      detectionStableCount = 0;
-      lastDetectionState = tagDetected;
+    double currentRange = -1;
+    if (detection != null && detection.ftcPose != null) {
+      currentRange = detection.ftcPose.range;
+      telemetry.addData("dist", currentRange);
+      return currentRange * 0.001;
     }
-    
-    if (detectionStableCount >= 3) {
-      if (tagDetected) {
-        currentHoodSetpoint = detection.ftcPose.range * 0.001;
-        telemetry.addData("dist", detection.ftcPose.range);
-      } else {
-        currentHoodSetpoint = 0;
-      }
-    }
-    
-    return currentHoodSetpoint;
+    return 0;
   }
 
   private void setFlywheelVelocity() {
@@ -382,50 +368,28 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
-      // Fire balls
-      autoLaunchTimer.reset();
-      while (opModeIsActive() && autoLaunchTimer.milliseconds() < 10000) {
-
-        telemetry.addData("Launcher Countdown", autoLaunchTimer.seconds());
-        telemetry.update();
+      if (opModeIsActive()) {
+        setFlywheelVelocity();
+        hood.setPosition(Math.min(targetPosition, 0.85));
       }
-      coreHex.setPower(0);
-      backLeft.setPower(-1);
+      shootBalls(2);
       frontLeft.setPower(-1);
-      backRight.setPower(-1);
-      frontRight.setPower(-1);
-      sleep(500);
-      frontLeft.setPower(0.5);
-      backLeft.setPower(0.5);
-      frontRight.setPower(-0.5);
-      backRight.setPower(-0.5);
-      sleep(500);
-      backLeft.setPower(0);
+      backLeft.setPower(-1);
+      frontRight.setPower(1);
+      backRight.setPower(1);
+      sleep(5000);
       frontLeft.setPower(0);
-      backRight.setPower(0);
-      frontRight.setPower(0);
-      sleep(100);
-      frontLeft.setPower(0.75);
-      backLeft.setPower(0.75);
-      frontRight.setPower(0.75);
-      backRight.setPower(0.75);
-      sleep(500);
       backLeft.setPower(0);
-      frontLeft.setPower(0);
-      backRight.setPower(0);
       frontRight.setPower(0);
-      
-      // Strafe movements
-      strafeLeft(0.5);
-      strafeRight(0.5);
+      backRight.setPower(0);
     }
   }
-
-  private void strafeLeft(double seconds) {
-    frontLeft.setPower(-0.75);
-    backLeft.setPower(0.75);
-    frontRight.setPower(0.75);
-    backRight.setPower(-0.75);
+  // Movement functions
+  private void strafeLeft(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(speed);
+    backRight.setPower(-speed);
     sleep((long)(seconds * 1000));
     frontLeft.setPower(0);
     backLeft.setPower(0);
@@ -433,16 +397,66 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     backRight.setPower(0);
   }
 
-  private void strafeRight(double seconds) {
-    frontLeft.setPower(0.75);
-    backLeft.setPower(-0.75);
-    frontRight.setPower(-0.75);
-    backRight.setPower(0.75);
+  private void strafeRight(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(speed);
     sleep((long)(seconds * 1000));
     frontLeft.setPower(0);
     backLeft.setPower(0);
     frontRight.setPower(0);
     backRight.setPower(0);
+  }
+  private void turnRight(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(speed);
+    backRight.setPower(speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void turnLeft(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(-speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void moveForward(double seconds, double speed) {
+    frontLeft.setPower(speed);
+    backLeft.setPower(speed);
+    frontRight.setPower(speed);
+    backRight.setPower(speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  private void moveBack(double seconds, double speed) {
+    frontLeft.setPower(-speed);
+    backLeft.setPower(-speed);
+    frontRight.setPower(-speed);
+    backRight.setPower(-speed);
+    sleep((long)(seconds * 1000));
+    frontLeft.setPower(0);
+    backLeft.setPower(0);
+    frontRight.setPower(0);
+    backRight.setPower(0);
+  }
+  // Shoot function
+  private void shootBalls(double seconds) {
+    coreHex.setPower(1);
+    sleep((long)(seconds * 1000));
+    coreHex.setPower(0);
   }
 
   private void doAutoRedBack() {
