@@ -40,12 +40,12 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private double[][] shooterLUT = {
           {24.0, 1330},
           {48.0, 1430},
-          {72.0, 1550},
+          {72.0, 1530},
           {96.0, 1600},
-          {120.0, 1700},
-          {150.0, 1800},
-          {180.0, 1900},
-          {210.0, 2000}
+          {120.0, 1670},
+          {150.0, 1750},
+          {180.0, 1830},
+          {210.0, 1900}
   };
 
   @Override
@@ -291,17 +291,16 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
       // Fire balls
-      autoLaunchTimer.reset();
-      while (opModeIsActive()) {
-        setFlywheelVelocity();
-        hood.setPosition(hoodOffset + getHoodSetpoint());
-      }
-      ((DcMotorEx) flywheel).setVelocity(0);
+      setFlywheelVelocity();
+      hood.setPosition(hoodOffset);
+      intake.setPower(-1);
+      coreHex.setPower(1);
+      sleep(3000);
       coreHex.setPower(0.0);
-      backLeft.setPower(-1.0);
+      backLeft.setPower(1.0);
       frontLeft.setPower(-1.0);
       backRight.setPower(-1.0);
-      frontRight.setPower(-1.0);
+      frontRight.setPower(1.0);
       sleep(500);
       backLeft.setPower(0.5);
       frontLeft.setPower(0.5);
@@ -374,17 +373,16 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
-      // Fire balls
-      autoLaunchTimer.reset();
-      while (opModeIsActive()) {
-        setFlywheelVelocity();
-        hood.setPosition(hoodOffset + getHoodSetpoint());
-      }
+      setFlywheelVelocity();
+      hood.setPosition(hoodOffset);
+      intake.setPower(-1);
+      coreHex.setPower(1);
+      sleep(3000);
       coreHex.setPower(0);
-      backLeft.setPower(-1);
+      backLeft.setPower(1);
       frontLeft.setPower(-1);
       backRight.setPower(-1);
-      frontRight.setPower(-1);
+      frontRight.setPower(1);
       sleep(500);
       frontLeft.setPower(0.5);
       backLeft.setPower(0.5);
@@ -453,8 +451,8 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
       backLeft.setPower(1);
-      frontLeft.setPower(1);
-      backRight.setPower(1);
+      frontLeft.setPower(-1);
+      backRight.setPower(-1);
       frontRight.setPower(1);
       sleep(500);
       backLeft.setPower(0);
