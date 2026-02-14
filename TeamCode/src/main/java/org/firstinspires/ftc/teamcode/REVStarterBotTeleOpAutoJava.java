@@ -134,11 +134,8 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         splitStickArcadeDrive();
         setFlywheelVelocity(); // This now runs the flywheel constantly
         manualCoreHexControl();
-        if (hood.getPosition() < 0.85) {
-          hood.setPosition(hoodOffset + getHoodSetpoint());
-        } else if (hood.getPosition() >= 0.85) {
-          hood.setPosition(0.85);
-        }
+        double targetPosition = hoodOffset + getHoodSetpoint();
+        hood.setPosition(Math.min(targetPosition, 0.85));
         aprilTagWebcam.update();
         telemetry.addData("Hood angle", hood.getPosition());
         telemetry.addData("Flywheel Target", ((DcMotorEx) flywheel).getVelocity());
