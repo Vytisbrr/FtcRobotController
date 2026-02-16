@@ -23,6 +23,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private static final int farVelocity = 1700;
   private static final int maxVelocity = 2200;
   private static final int shootVelocity = 1050;
+  private static int override = 0;
   int targetID = 20;
   private static final String TELEOP = "TELEOP";
   private static final String AUTO_BLUE_GOAL = "AUTO BLUE GOAL";
@@ -46,7 +47,8 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
           {150.0, 1690},
           {180.0, 1760},
           {210.0, 1840},
-          {240.0, 1950}
+          {250.0, 1950},
+          {275.0, 2100}
   };
 
   @Override
@@ -133,7 +135,9 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         splitStickArcadeDrive();
         setFlywheelVelocity(); // This now runs the flywheel constantly
         manualCoreHexControl();
-        hood.setPosition(Math.min(hoodOffset + getHoodSetpoint(), 0.86));
+        if (override == 0) {
+          hood.setPosition(Math.min(hoodOffset + getHoodSetpoint(), 0.867));
+        }
         aprilTagWebcam.update();
         if (targetID==20){
           telemetry.addData("Targeting Blue, ID:", targetID);
@@ -156,7 +160,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (detection != null && detection.ftcPose != null) {
       currentRange = detection.ftcPose.range;
       telemetry.addData("dist", currentRange);
-      return currentRange * 0.0011;
+      return currentRange * 0.0012;
     }
     return 0;
   }
@@ -199,13 +203,17 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
 
     // 4. CORE HEX ONLY ON BUMPERS
     if (gamepad1.right_bumper) {
-      sleep(100);
-      if (((DcMotorEx) flywheel).getVelocity() >= targetVelocity - 50 && ((DcMotorEx) flywheel).getVelocity() <= targetVelocity + 50) {
+      sleep(50);
+      if (((DcMotorEx) flywheel).getVelocity() >= targetVelocity - 80 && ((DcMotorEx) flywheel).getVelocity() <= targetVelocity + 80) {
         coreHex.setPower(0.8);
       } else {
         coreHex.setPower(0);
         ((DcMotorEx) flywheel).setVelocity(targetVelocity);
       }
+    }
+    else {
+      coreHex.setPower(0);
+      ((DcMotorEx) flywheel).setVelocity(targetVelocity);
     }
 
     // Diagnostics
@@ -274,9 +282,10 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       targetID = 24;
     }
     if (gamepad1.dpad_up) {
-
-    } else if (gamepad1.dpad_down) {
-      hood.setPosition(0.0);
+      override = 1;
+      hood.setPosition(0.867);
+    } else {
+      override = 0;
     }
   }
 
@@ -311,11 +320,11 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       coreHex.setPower(0);
       moveBack(0.5, 1);
       turnLeft(0.45, 0.5);
-      strafeLeft(1.2, 0.5);
+      strafeLeft(1.1, 0.5);
       intake.setPower(-1);
       moveForward(1, 1);
       moveBack(1, 1);
-      strafeRight(1.2, 0.5);
+      strafeRight(1.1, 0.5);
     }
   }
 
@@ -447,12 +456,19 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       sleep(2000);
       moveBack(0.5, 1);
       turnRight(0.45, 0.5);
-      strafeRight(1.13, 0.5);
+      strafeRight(1.1, 0.5);
       intake.setPower(-1);
-      moveForward(1, 1);
-      moveBack(1, 0.5);
-      strafeLeft(1.13, 0.5);
-      turnLeft(0.45, 0.5);
+      sleep(1000);
+      moveForward(0.9, 0.75);
+      moveBack(0.9, 0.75);
+      strafeLeft(1.1, 0.5);
+      turnLeft(0.6, 0.5);
+      setFlywheelVelocity();
+      hood.setPosition(Math.min(hoodOffset+getHoodSetpoint(), 0.867));
+      sleep(5000);
+      moveForward(0, 0);
+      intake.setPower(-1);
+      coreHex.setPower(1);
     }
   }
       private void doAutoRedBack() {
