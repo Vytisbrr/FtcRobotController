@@ -177,7 +177,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     // 2. Determine target velocity (Adjustable or Fallback)
     double targetVelocity = 0;
 
-    if (currentRange != -1) {
+    if (currentRange != -1 && override == 0) {
       // Interpolate distance from shooterLUT
       if (currentRange <= shooterLUT[0][0]) {
         targetVelocity = shooterLUT[0][1];
@@ -193,16 +193,17 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
           }
         }
       }
-    } else {
+    } else if (override == 0 && currentRange == -1) {
       // Use bankVelocity if no tag is seen
       targetVelocity = bankVelocity;
+    } else if (override == 1) {
+      targetVelocity = 2000;
     }
 
     // 3. APPLY VELOCITY CONSTANTLY
     ((DcMotorEx) flywheel).setVelocity(targetVelocity);
-
     // 4. CORE HEX ONLY ON BUMPERS
-    if (gamepad1.right_bumper) {
+    if (gamepad1.right_trigger >= 0.25) {
       sleep(50);
       if (((DcMotorEx) flywheel).getVelocity() >= targetVelocity - 80 && ((DcMotorEx) flywheel).getVelocity() <= targetVelocity + 80) {
         coreHex.setPower(0.8);
@@ -271,10 +272,13 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
    */
   private void manualCoreHexControl() {
     // Manual control for the intake
-    if (gamepad1.cross) {
+    if (gamepad1.left_trigger >= 0.25) {
       intake.setPower(-1.0);
-    } else if (gamepad1.triangle) {
+    } else {
       intake.setPower(0.0);
+    }
+    if (gamepad1.left_bumper) {
+      intake.setPower(1.0);
     }
     if (gamepad1.dpad_left) {
       targetID = 20;
@@ -284,6 +288,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (gamepad1.dpad_up) {
       override = 1;
       hood.setPosition(0.867);
+      ((DcMotorEx) flywheel).setVelocity(2000);
     } else {
       override = 0;
     }
@@ -442,33 +447,49 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
-      setFlywheelVelocity();
+      // Shooting
+      ((DcMotorEx) flywheel).setVelocity(1250);
       hood.setPosition(hoodOffset);
       sleep(500);
       intake.setPower(-1);
       coreHex.setPower(1);
-      sleep(1000);
+      sleep(3000);
       intake.setPower(0);
       coreHex.setPower(0);
+      // First Station
       moveBack(0.3, 0.5);
-      coreHex.setPower(1);
-      intake.setPower(-1);
-      sleep(2000);
       moveBack(0.5, 1);
       turnRight(0.45, 0.5);
-      strafeRight(1.1, 0.5);
+      strafeRight(1, 0.5);
       intake.setPower(-1);
       sleep(1000);
-      moveForward(0.9, 0.75);
-      moveBack(0.9, 0.75);
-      strafeLeft(1.1, 0.5);
-      turnLeft(0.6, 0.5);
-      setFlywheelVelocity();
-      hood.setPosition(Math.min(hoodOffset+getHoodSetpoint(), 0.867));
-      sleep(5000);
-      moveForward(0, 0);
+      moveForward(1, 0.8);
+      sleep(2000);
+      moveBack(1, 0.8);
+      strafeLeft(1, 0.5);
+      turnLeft(0.5, 0.5);
+      moveForward(0.8, 1);
+      sleep(1000);
       intake.setPower(-1);
       coreHex.setPower(1);
+      sleep(2000);
+      // Second Station
+      moveBack(0.3,0.5);
+      moveBack(0.5, 1);
+      turnRight(0.45, 0.5);
+      strafeRight(2.2, 0.5);
+      intake.setPower(-1);
+      sleep(500);
+      moveForward(1, 1);
+      moveBack(1, 1);
+      strafeLeft(2.2, 0.5);
+      turnLeft(0.5, 0.5);
+      moveForward(0.8, 1);
+      sleep(1000);
+      intake.setPower(-1);
+      coreHex.setPower(1);
+      sleep(2000);
+      moveForward(0, 0);
     }
   }
       private void doAutoRedBack() {
