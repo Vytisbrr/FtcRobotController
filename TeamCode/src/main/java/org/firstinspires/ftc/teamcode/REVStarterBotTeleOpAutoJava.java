@@ -51,6 +51,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
           {150.0, 1630},
           {180.0, 1690}
   };
+  private static int overridebank = 0;
 
   @Override
   public void runOpMode() {
@@ -158,20 +159,22 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private double getHoodSetpoint(){
     org.firstinspires.ftc.vision.apriltag.AprilTagDetection detection = aprilTagWebcam.getTagBySpecificId(targetID);
     double Distance = -1;
-    if (lockoncount == 0) {
+    if (lockoncount == 0 && overridebank == 0) {
       // Locked on
       Distance = detection.ftcPose.range;
       lasthooddistance = Distance;
       telemetry.addData("dist", Distance);
       return Distance * 0.0012;
-    } else if (lockoncount > 0 && lockoncount < lockoncountmax) {
+    } else if (lockoncount > 0 && lockoncount < lockoncountmax && overridebank == 0) {
       // Lock on Buffer
       Distance = lasthooddistance;
       telemetry.addData("dist", Distance);
       return Distance * 0.0012;
-    } else if (lockoncount >= lockoncountmax) {
+    } else if (lockoncount >= lockoncountmax && overridebank == 0) {
       // Lock on lost fallback
       telemetry.addData("dist", 0);
+      return 0;
+    } if (overridebank == 1) {
       return 0;
     }
     telemetry.addData("NEVER SEE THIS", 0);
@@ -216,16 +219,18 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     } else if (override == 1) {
       targetVelocity = 1900;
     }
-    if (currentRange == -1 && lockoncount < lockoncountmax) {
+    if (currentRange == -1 && lockoncount < lockoncountmax && overridebank == 0) {
       lockoncount += 1;
       ((DcMotorEx) flywheel).setVelocity(lastflywheelspeed);
       telemetry.addData("Locked", lockoncount);
 
     } else if (currentRange == -1 && lockoncount >= lockoncountmax) {
       lockoncount = lockoncountmax;
+    } else if (overridebank == 1) {
+      ((DcMotorEx) flywheel).setVelocity(bankVelocity);
     }
     // 3. APPLY VELOCITY CONSTANTLY
-    if (lockoncount == 0 || lockoncount >= lockoncountmax) {
+    if (lockoncount == 0 || lockoncount >= lockoncountmax && overridebank == 0) {
       ((DcMotorEx) flywheel).setVelocity(targetVelocity);
     }
     // 4. CORE HEX ONLY ON BUMPERS
@@ -317,6 +322,12 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       hood.setPosition(0.867);
     } else {
       override = 0;
+    }
+    if (gamepad1.square) {
+      overridebank = 1;
+    }
+    else {
+      overridebank = 0;
     }
   }
 
