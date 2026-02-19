@@ -352,7 +352,8 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (opModeIsActive()) {
       telemetry.addData("RUNNING OPMODE", operationSelected);
       telemetry.update();
-      setFlywheelVelocity();
+      // Shooting
+      ((DcMotorEx) flywheel).setVelocity(1250);
       hood.setPosition(hoodOffset);
       sleep(500);
       intake.setPower(-1);
@@ -360,13 +361,40 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
       sleep(3000);
       intake.setPower(0);
       coreHex.setPower(0);
+      // First Station
+      moveBack(0.3, 0.5);
       moveBack(0.5, 1);
       turnLeft(0.45, 0.5);
-      strafeLeft(1.1, 0.5);
+      strafeLeft(1, 0.5);
       intake.setPower(-1);
+      sleep(1000);
+      moveForward(1, 0.8);
+      sleep(2000);
+      moveBack(1, 0.8);
+      strafeRight(1, 0.5);
+      turnRight(0.5, 0.5);
+      moveForward(0.8, 1);
+      sleep(1000);
+      intake.setPower(-1);
+      coreHex.setPower(1);
+      sleep(2000);
+      // Second Station
+      moveBack(0.3,0.5);
+      moveBack(0.5, 1);
+      turnLeft(0.45, 0.5);
+      strafeLeft(2.2, 0.5);
+      intake.setPower(-1);
+      sleep(500);
       moveForward(1, 1);
       moveBack(1, 1);
-      strafeRight(1.1, 0.5);
+      strafeRight(2.2, 0.5);
+      turnRight(0.5, 0.5);
+      moveForward(0.8, 1);
+      sleep(1000);
+      intake.setPower(-1);
+      coreHex.setPower(1);
+      sleep(2000);
+      moveForward(0, 0);
     }
   }
 
