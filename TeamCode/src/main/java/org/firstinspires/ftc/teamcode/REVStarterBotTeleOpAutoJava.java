@@ -159,7 +159,7 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private double getHoodSetpoint(){
     org.firstinspires.ftc.vision.apriltag.AprilTagDetection detection = aprilTagWebcam.getTagBySpecificId(targetID);
     double Distance = -1;
-    if (lockoncount == 0 && overridebank == 0) {
+    if (lockoncount == 0 && overridebank == 0 && detection != null && detection.ftcPose != null) {
       // Locked on
       Distance = detection.ftcPose.range;
       lasthooddistance = Distance;
