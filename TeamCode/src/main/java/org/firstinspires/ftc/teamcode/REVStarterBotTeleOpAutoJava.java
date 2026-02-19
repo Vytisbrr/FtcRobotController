@@ -19,11 +19,15 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private DcMotor intake;
   private Servo hood;
   double servoPosition;
-  private static final int bankVelocity = 1400;
+  private static final int bankVelocity = 1200;
   private static final int farVelocity = 1700;
   private static final int maxVelocity = 2200;
   private static final int shootVelocity = 1050;
+  private static int lockoncount = 0;
+  private static int lockoncountmax = 200;
   private static int override = 0;
+  private static double lastflywheelspeed = 0;
+  private static double lasthooddistance = 0;
   int targetID = 20;
   private static final String TELEOP = "TELEOP";
   private static final String AUTO_BLUE_GOAL = "AUTO BLUE GOAL";
@@ -39,16 +43,13 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
   private ElapsedTime autoDriveTimer = new ElapsedTime();
   AprilTagWebcam aprilTagWebcam = new AprilTagWebcam();
   private double[][] shooterLUT = {
-          {24.0, 1330},
-          {48.0, 1430},
-          {72.0, 1530},
-          {96.0, 1600},
-          {120.0, 1640},
-          {150.0, 1690},
-          {180.0, 1760},
-          {210.0, 1840},
-          {250.0, 1950},
-          {275.0, 2100}
+          {24.0, 1200},
+          {48.0, 1330},
+          {72.0, 1400},
+          {96.0, 1500},
+          {120.0, 1570},
+          {150.0, 1630},
+          {180.0, 1690}
   };
 
   @Override
@@ -156,12 +157,24 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
 
   private double getHoodSetpoint(){
     org.firstinspires.ftc.vision.apriltag.AprilTagDetection detection = aprilTagWebcam.getTagBySpecificId(targetID);
-    double currentRange = -1;
-    if (detection != null && detection.ftcPose != null) {
-      currentRange = detection.ftcPose.range;
-      telemetry.addData("dist", currentRange);
-      return currentRange * 0.0012;
+    double Distance = -1;
+    if (lockoncount == 0) {
+      // Locked on
+      Distance = detection.ftcPose.range;
+      lasthooddistance = Distance;
+      telemetry.addData("dist", Distance);
+      return Distance * 0.0012;
+    } else if (lockoncount > 0 && lockoncount < lockoncountmax) {
+      // Lock on Buffer
+      Distance = lasthooddistance;
+      telemetry.addData("dist", Distance);
+      return Distance * 0.0012;
+    } else if (lockoncount >= lockoncountmax) {
+      // Lock on lost fallback
+      telemetry.addData("dist", 0);
+      return 0;
     }
+    telemetry.addData("NEVER SEE THIS", 0);
     return 0;
   }
 
@@ -175,9 +188,11 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     }
 
     // 2. Determine target velocity (Adjustable or Fallback)
-    double targetVelocity = 0;
-
+    double targetVelocity = lastflywheelspeed;
+    // Locked on code
     if (currentRange != -1 && override == 0) {
+      lockoncount = 0;
+      telemetry.addData("Locked", lockoncount);
       // Interpolate distance from shooterLUT
       if (currentRange <= shooterLUT[0][0]) {
         targetVelocity = shooterLUT[0][1];
@@ -193,15 +208,26 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
           }
         }
       }
-    } else if (override == 0 && currentRange == -1) {
+    // Lock on Lost
+    } else if (override == 0 && currentRange == -1 && lockoncount >= lockoncountmax) {
       // Use bankVelocity if no tag is seen
       targetVelocity = bankVelocity;
+      telemetry.addData("Locked ", "Lost");
     } else if (override == 1) {
-      targetVelocity = 2000;
+      targetVelocity = 1900;
     }
+    if (currentRange == -1 && lockoncount < lockoncountmax) {
+      lockoncount += 1;
+      ((DcMotorEx) flywheel).setVelocity(lastflywheelspeed);
+      telemetry.addData("Locked", lockoncount);
 
+    } else if (currentRange == -1 && lockoncount >= lockoncountmax) {
+      lockoncount = lockoncountmax;
+    }
     // 3. APPLY VELOCITY CONSTANTLY
-    ((DcMotorEx) flywheel).setVelocity(targetVelocity);
+    if (lockoncount == 0 || lockoncount >= lockoncountmax) {
+      ((DcMotorEx) flywheel).setVelocity(targetVelocity);
+    }
     // 4. CORE HEX ONLY ON BUMPERS
     if (gamepad1.right_trigger >= 0.25) {
       sleep(50);
@@ -209,17 +235,18 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
         coreHex.setPower(0.8);
       } else {
         coreHex.setPower(0);
-        ((DcMotorEx) flywheel).setVelocity(targetVelocity);
       }
     }
     else {
       coreHex.setPower(0);
-      ((DcMotorEx) flywheel).setVelocity(targetVelocity);
     }
-
     // Diagnostics
-    telemetry.addData("Shooter Mode", currentRange == -1 ? "FALLBACK (Bank)" : "AUTO-ADJUSTING");
+    telemetry.addData("Shooter Mode", currentRange == -1 && lockoncount == lockoncountmax ? "FALLBACK (Bank)" : "AUTO-ADJUSTING");
     telemetry.addData("Target RPM", targetVelocity);
+    telemetry.addData("lastvelocity", lastflywheelspeed);
+    if (currentRange != -1) {
+      lastflywheelspeed = targetVelocity;
+    }
   }
 
 
@@ -288,7 +315,6 @@ public class REVStarterBotTeleOpAutoJava extends LinearOpMode {
     if (gamepad1.dpad_up) {
       override = 1;
       hood.setPosition(0.867);
-      ((DcMotorEx) flywheel).setVelocity(2000);
     } else {
       override = 0;
     }
